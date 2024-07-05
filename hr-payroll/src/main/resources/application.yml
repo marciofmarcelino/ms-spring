@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: hr-payroll
+
+server:
+  port: 8101
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      payments:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        recordExceptions:
+          - feign.FeignException
+          - java.io.IOException
+          - java.sql.SQLException
+        ignoreExceptions:
+          - java.lang.NullPointerException
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        
+resilience4j.timelimiter:
+    instances:
+        payments:
+            timeoutDuration: 2s
+            cancelRunningFuture: true
